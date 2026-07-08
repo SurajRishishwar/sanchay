@@ -45,6 +45,7 @@ export default function EntryScreen({
     categories,
 
     initialActivity,
+    isManager = false,
 
 }: {
 
@@ -61,6 +62,7 @@ export default function EntryScreen({
     categories: Category[]
 
     initialActivity: ActivityItem[]
+    isManager?: boolean 
 
 }) {
 
@@ -232,7 +234,7 @@ export default function EntryScreen({
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar />
+            <Navbar isManager={isManager} />
             <div className="px-4 py-6">
                 <div className="mx-auto max-w-3xl">
                     <div className="mb-6">

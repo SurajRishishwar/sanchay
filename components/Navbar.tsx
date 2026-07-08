@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 
 import { createClient } from '@/lib/supabase/client'
 
-export default function Navbar() {
+export default function Navbar({ isManager = false }: { isManager?: boolean }) {
 
     const router = useRouter()
 
@@ -56,6 +56,26 @@ export default function Navbar() {
 
                 {/* Desktop links */}
                 <div className="hidden items-center gap-4 md:flex">
+                    {isManager && (
+                        <Link href="/manager/users" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+                            Users
+                        </Link>
+                    )}
+                    {isManager && (
+                        <Link href="/manager/reimbursements" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+                            Reimbursements
+                        </Link>
+                    )}
+                    {isManager && (
+                        <Link href="/manager/jars" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+                            Jars
+                        </Link>
+                    )}
+                    {isManager && (
+                        <Link href="/manager/categories" className="text-sm font-medium text-gray-500 hover:text-gray-900">
+                            Categories
+                        </Link>
+                    )}
                     <Link href="/profile" className="text-sm font-medium text-gray-500 hover:text-gray-900">
 
                         Profile
@@ -92,6 +112,42 @@ export default function Navbar() {
 
             {menuOpen && (
                 <div ref={menuRef} className="mt-3 flex flex-col gap-1 border-t border-gray-100 pt-3 md:hidden">
+                    {isManager && (
+                        <Link
+                            href="/manager/users"
+                            onClick={() => setMenuOpen(false)}
+                            className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                            Users
+                        </Link>
+                    )}
+                    {isManager && (
+                        <Link
+                            href="/manager/reimbursements"
+                            onClick={() => setMenuOpen(false)}
+                            className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                            Reimbursements
+                        </Link>
+                    )}
+                    {isManager && (
+                        <Link
+                            href="/manager/jars"
+                            onClick={() => setMenuOpen(false)}
+                            className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                            Jars
+                        </Link>
+                    )}
+                    {isManager && (
+                        <Link
+                            href="/manager/categories"
+                            onClick={() => setMenuOpen(false)}
+                            className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                            Categories
+                        </Link>
+                    )}
                     <Link
 
                         href="/profile"

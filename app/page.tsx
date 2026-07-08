@@ -26,6 +26,16 @@ export default async function HomePage({
 
   if (!user) redirect('/login')
 
+  const { data: profile } = await supabase
+
+    .from('profiles')
+
+    .select('full_name, role')
+
+    .eq('id', user.id)
+
+    .single()
+
   const { data: memberships } = await supabase
 
     .from('jar_members')
@@ -35,6 +45,10 @@ export default async function HomePage({
     .eq('user_id', user.id)
 
   if (!memberships || memberships.length === 0) {
+
+    // Managers with no Jar membership of their own go straight
+    // to the manager dashboard instead of a dead-end message.
+    if (profile?.role === 'manager') redirect('/manager')
 
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -95,15 +109,6 @@ export default async function HomePage({
 
     .order('created_at', { ascending: false })
 
-  const { data: profile } = await supabase
-
-    .from('profiles')
-
-    .select('full_name')
-
-    .eq('id', user.id)
-
-    .single()
 
   return (
     <EntryScreen
@@ -117,6 +122,8 @@ export default async function HomePage({
       userId={user.id}
 
       userName={profile?.full_name ?? 'You'}
+
+      isManager={profile?.role === 'manager'}
 
       categories={categories ?? []}
 

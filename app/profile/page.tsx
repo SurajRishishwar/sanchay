@@ -48,7 +48,7 @@ export default async function ProfilePage() {
  
   return (
 <div className="min-h-screen bg-gray-50">
-<Navbar />
+<Navbar isManager={profile?.role === 'manager'} />
 <div className="px-4 py-6">
 <div className="mx-auto max-w-md">
 <div className="mb-4 flex items-center justify-between">

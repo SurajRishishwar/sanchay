@@ -39,6 +39,11 @@ export default async function ActivityPage({
     } = await supabase.auth.getUser()
 
     if (!user) redirect('/login')
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
 
     const { data: memberships } = await supabase
 
@@ -170,7 +175,7 @@ export default async function ActivityPage({
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar />
+            <Navbar isManager={profile?.role === 'manager'}/>
             <div className="px-4 py-6">
                 <div className="mx-auto max-w-2xl">
                     <div className="mb-4 flex items-start justify-between gap-3">
