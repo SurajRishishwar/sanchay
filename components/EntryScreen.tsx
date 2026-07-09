@@ -321,7 +321,6 @@ export default function EntryScreen({
                                             >
                                                 <div>
                                                     <p className="text-sm text-gray-900">{item.category}</p>
-                                                    <p className="text-xs text-gray-500">{item.name}</p>
                                                 </div>
                                                 <p className="text-sm font-medium text-gray-900">
 

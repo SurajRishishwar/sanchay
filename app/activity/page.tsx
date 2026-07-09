@@ -8,6 +8,8 @@ import Navbar from '@/components/Navbar'
 
 import NavLinkButton from '@/components/NavLinkButton'
 
+import ActivityExpenseRow from '@/components/ActivityExpenseRow'
+
 const PAGE_SIZE = 10
 
 export default async function ActivityPage({
@@ -22,7 +24,7 @@ export default async function ActivityPage({
 
     const { filter, page: pageParam, jar: requestedJarId } = await searchParams
 
-    const showMineOnly = filter === 'mine'
+    const showMineOnly = filter !== 'all'
 
     const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
 
@@ -39,6 +41,7 @@ export default async function ActivityPage({
     } = await supabase.auth.getUser()
 
     if (!user) redirect('/login')
+
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -75,7 +78,7 @@ export default async function ActivityPage({
 
         .from('expenses')
 
-        .select('id, amount, category_name, user_name, user_id, entry_date', { count: 'exact' })
+        .select('id, amount, category_name, user_name, user_id, entry_date, is_recurring', { count: 'exact' })
 
         .eq('jar_id', jar.id)
 
@@ -107,7 +110,7 @@ export default async function ActivityPage({
 
         params.set('jar', jar.id)
 
-        if (showMineOnly) params.set('filter', 'mine')
+        if (!showMineOnly) params.set('filter', 'all')
 
         if (targetPage > 1) params.set('page', String(targetPage))
 
@@ -121,7 +124,7 @@ export default async function ActivityPage({
 
         params.set('jar', jar.id)
 
-        if (mine) params.set('filter', 'mine')
+        if (!mine) params.set('filter', 'all')
 
         return `/activity?${params.toString()}`
 
@@ -175,7 +178,7 @@ export default async function ActivityPage({
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar isManager={profile?.role === 'manager'}/>
+            <Navbar isManager={profile?.role === 'manager'} />
             <div className="px-4 py-6">
                 <div className="mx-auto max-w-2xl">
                     <div className="mb-4 flex items-start justify-between gap-3">
@@ -254,27 +257,18 @@ export default async function ActivityPage({
                                     <div className="rounded-xl bg-white px-4 shadow-sm">
 
                                         {group.items!.map((item, i) => (
-                                            <div
+                                            <ActivityExpenseRow
 
                                                 key={item.id}
 
-                                                className={`flex items-center justify-between py-3 ${i < group.items!.length - 1 ? 'border-b border-gray-100' : ''
+                                                item={item}
 
-                                                    }`}
-                                            >
-                                                <div>
-                                                    <p className="text-sm text-gray-900">{item.category_name}</p>
+                                                currentUserId={user.id}
 
-                                                    {!showMineOnly && (
-                                                        <p className="text-xs text-gray-500">{item.user_name}</p>
+                                                showOwner={!showMineOnly}
 
-                                                    )}
-                                                </div>
-                                                <p className="text-sm font-medium text-gray-900">
-
-                                                    ₹{Number(item.amount).toLocaleString('en-IN')}
-                                                </p>
-                                            </div>
+                                                showBorder={i < group.items!.length - 1}
+                                            />
 
                                         ))}
                                     </div>
@@ -287,25 +281,25 @@ export default async function ActivityPage({
                     )}
 
                     {totalPages > 1 && (
-                        <div className="mt-6 flex items-center justify-between">
+                        <div className="mt-4 flex items-center justify-between rounded-xl bg-white p-3 shadow-sm">
 
                             {page > 1 ? (
                                 <NavLinkButton
 
                                     href={pageLink(page - 1)}
 
-                                    className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm"
+                                    className="text-sm font-medium text-blue-600"
                                 >
 
-                                    ← Previous
+                                    ← Prev
                                 </NavLinkButton>
 
                             ) : (
-                                <span />
+                                <span className="text-sm font-medium text-gray-300">← Prev</span>
 
                             )}
 
-                            <p className="text-xs text-gray-500">
+                            <p className="text-sm font-semibold text-gray-900">
 
                                 Page {page} of {totalPages}
                             </p>
@@ -315,14 +309,14 @@ export default async function ActivityPage({
 
                                     href={pageLink(page + 1)}
 
-                                    className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm"
+                                    className="text-sm font-medium text-blue-600"
                                 >
 
                                     Next →
                                 </NavLinkButton>
 
                             ) : (
-                                <span />
+                                <span className="text-sm font-medium text-gray-300">Next →</span>
 
                             )}
                         </div>
