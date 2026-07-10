@@ -125,37 +125,37 @@ export default async function ReimbursementsPage({
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 transition-colors duration-200">
       <Navbar isManager />
       <div className="px-4 py-6">
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-medium text-gray-900">Reimbursements</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <h1 className="text-lg font-medium text-gray-900 dark:text-zinc-50">Reimbursements</h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
                 Money members spent from their own pocket, per Jar, per month.
               </p>
             </div>
-            <NavLinkButton href="/manager" className="text-sm font-medium text-blue-600">
+            <NavLinkButton href="/manager" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
               Back
             </NavLinkButton>
           </div>
 
           {/* Month navigator */}
-          <div className="mb-4 flex items-center justify-between rounded-xl bg-white p-3 shadow-sm">
+          <div className="mb-4 flex items-center justify-between rounded-xl bg-white p-3 shadow-sm border border-gray-100 dark:bg-zinc-900 dark:border-zinc-900">
             <NavLinkButton
               href={`?month=${monthKey(prevMonth)}`}
-              className="text-sm font-medium text-blue-600"
+              className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
             >
               ← Prev
             </NavLinkButton>
-            <p className="text-sm font-semibold text-gray-900">{monthLabel(monthStart)}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-zinc-50">{monthLabel(monthStart)}</p>
             {isNextDisabled ? (
-              <span className="text-sm font-medium text-gray-300">Next →</span>
+              <span className="text-sm font-medium text-gray-300 dark:text-zinc-700">Next →</span>
             ) : (
               <NavLinkButton
                 href={`?month=${monthKey(nextMonth)}`}
-                className="text-sm font-medium text-blue-600"
+                className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
               >
                 Next →
               </NavLinkButton>

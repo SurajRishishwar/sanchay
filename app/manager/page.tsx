@@ -71,50 +71,49 @@ export default async function ManagerPage() {
   const totalSpent = jarSummaries.reduce((s, j) => s + j.spent, 0)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 transition-colors duration-200">
       <Navbar isManager />
       <div className="px-4 py-6">
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-medium text-gray-900">
+              <h1 className="text-lg font-medium text-gray-900 dark:text-zinc-50">
                 Manager overview
               </h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
                 Welcome{profile.full_name ? `, ${profile.full_name}` : ''} — every
                 Jar across Sanchay, at a glance.
               </p>
             </div>
-
           </div>
 
-          {/* Overall summary */}
-          <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
+          {/* Overall summary card */}
+          <div className="mb-4 rounded-xl bg-white p-4 shadow-sm border border-gray-100 dark:bg-zinc-900 dark:border-zinc-900">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs font-medium text-gray-500">
+                <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
                   Total budget (this cycle)
                 </p>
-                <p className="mt-1 text-xl font-semibold text-gray-900">
+                <p className="mt-1 text-xl font-semibold text-gray-900 dark:text-zinc-50">
                   ₹{totalBudget.toLocaleString('en-IN')}
                 </p>
               </div>
               <div>
-                <p className="text-xs font-medium text-gray-500">
+                <p className="text-xs font-medium text-gray-500 dark:text-zinc-400">
                   Total spent
                 </p>
-                <p className="mt-1 text-xl font-semibold text-gray-900">
+                <p className="mt-1 text-xl font-semibold text-gray-900 dark:text-zinc-50">
                   ₹{totalSpent.toLocaleString('en-IN')}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Per-Jar cards */}
+          {/* Per-Jar cards listing layout */}
           {jarList.length === 0 ? (
-            <div className="rounded-xl bg-white p-4 text-sm text-gray-500 shadow-sm">
+            <div className="rounded-xl bg-white p-4 text-sm text-gray-500 shadow-sm border border-gray-100 dark:bg-zinc-900 dark:border-zinc-900 dark:text-zinc-400">
               No jars yet.{' '}
-              <Link  href="/manager/jars" className="font-medium text-blue-600">
+              <Link href="/manager/jars" className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
                 Create your first Jar
               </Link>
               .
@@ -125,36 +124,38 @@ export default async function ManagerPage() {
                 <Link 
                   href={`/manager/jars/${jar.id}`}
                   key={jar.id}
-                  className="block rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md"
+                  className="block rounded-xl bg-white p-4 shadow-sm border border-gray-100 transition hover:shadow-md dark:bg-zinc-900 dark:border-zinc-900 dark:hover:bg-zinc-900/80"
                 >
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-zinc-50">
                       {jar.name}
                     </p>
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium capitalize text-gray-600">
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium capitalize text-gray-600 dark:bg-zinc-800 dark:text-zinc-300">
                       {jar.type}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <p className="text-xs text-gray-500">Budget</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">Budget</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-zinc-50">
                         ₹{jar.budget_amount.toLocaleString('en-IN')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Spent</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">Spent</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-zinc-50">
                         ₹{jar.spent.toLocaleString('en-IN')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">
                         {jar.isOver ? 'Over by' : 'Remaining'}
                       </p>
                       <p
                         className={`text-sm font-medium ${
-                          jar.isOver ? 'text-red-600' : 'text-green-600'
+                          jar.isOver 
+                            ? 'text-red-600 dark:text-red-400' 
+                            : 'text-green-600 dark:text-green-400'
                         }`}
                       >
                         ₹{jar.remaining.toLocaleString('en-IN')}
@@ -166,12 +167,12 @@ export default async function ManagerPage() {
             </div>
           )}
 
-          {/* Placeholders for what's coming next on the manager side */}
-          <div className="mt-6 rounded-xl border border-dashed border-gray-300 bg-white p-4">
-            <p className="mb-2 text-sm font-medium text-gray-700">
+          {/* Placeholders for upcoming features dashboard info box */}
+          <div className="mt-6 rounded-xl border border-dashed border-gray-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <p className="mb-2 text-sm font-medium text-gray-700 dark:text-zinc-300">
               Coming next to this dashboard
             </p>
-            <ul className="list-inside list-disc space-y-1 text-sm text-gray-500">
+            <ul className="list-inside list-disc space-y-1 text-sm text-gray-500 dark:text-zinc-400">
               <li>Manage categories per Jar</li>
               <li>Assign members to Jars</li>
               <li>Recurring expense setup</li>

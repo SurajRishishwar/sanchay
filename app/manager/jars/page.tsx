@@ -27,20 +27,22 @@ export default async function ManagerJarsPage() {
     .order('created_at')
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 transition-colors duration-200">
       <Navbar isManager />
       <div className="px-4 py-6">
         <div className="mx-auto max-w-2xl">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-medium text-gray-900">Jars</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <h1 className="text-lg font-medium text-gray-900 dark:text-zinc-50">
+                Jars
+              </h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
                 Create new Jars and edit budgets.
               </p>
             </div>
             <Link
               href="/manager"
-              className="text-sm font-medium text-blue-600"
+              className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
             >
               Back
             </Link>

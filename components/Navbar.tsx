@@ -60,9 +60,14 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
                             Categories
                         </Link>
                     )}
-                    <Link href="/history" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-                        Months
-                    </Link>
+                    
+                    {/* HIDE FOR MANAGERS (Desktop) */}
+                    {!isManager && (
+                        <Link href="/history" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                            Months
+                        </Link>
+                    )}
+
                     <Link href="/profile" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
                         Profile
                     </Link>
@@ -136,13 +141,18 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
                             Categories
                         </Link>
                     )}
-                    <Link
-                        href="/history"
-                        onClick={() => setMenuOpen(false)}
-                        className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                    >
-                        Months
-                    </Link>
+
+                    {/* HIDE FOR MANAGERS (Mobile) */}
+                    {!isManager && (
+                        <Link
+                            href="/history"
+                            onClick={() => setMenuOpen(false)}
+                            className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                        >
+                            Months
+                        </Link>
+                    )}
+
                     <Link
                         href="/profile"
                         onClick={() => setMenuOpen(false)}
