@@ -60,16 +60,20 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
                             Categories
                         </Link>
                     )}
+                    <Link href="/history" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                        Months
+                    </Link>
                     <Link href="/profile" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
                         Profile
                     </Link>
+
                     <button
                         onClick={handleLogout}
                         className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100 cursor-pointer"
                     >
                         Log out
                     </button>
-                    
+
                     {/* Theme Toggle Button for Desktop */}
                     <div className="ml-2 border-l border-gray-200 dark:border-zinc-800 pl-4">
                         <ThemeToggle />
@@ -133,13 +137,20 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
                         </Link>
                     )}
                     <Link
+                        href="/history"
+                        onClick={() => setMenuOpen(false)}
+                        className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                    >
+                        Months
+                    </Link>
+                    <Link
                         href="/profile"
                         onClick={() => setMenuOpen(false)}
                         className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
                     >
                         Profile
                     </Link>
-                    
+
                     {/* Theme Toggle option row for Mobile */}
                     <div className="flex items-center justify-between rounded-lg px-2 py-1 text-sm font-medium text-gray-700 dark:text-zinc-300">
                         <span>Theme Mode</span>
