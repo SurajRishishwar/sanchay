@@ -112,65 +112,70 @@ export default function ActivityExpenseRow({
 
     if (editing) {
         return (
-            <div className={`py-3 ${showBorder ? 'border-b border-gray-100' : ''}`}>
+            /* Updated border targets */
+            <div className={`py-3 ${showBorder ? 'border-b border-gray-100 dark:border-zinc-800' : ''}`}>
                 {!confirmingDelete ? (
                     <div>
                         <div className="mb-2 flex items-center justify-between">
-                            <p className="text-sm text-gray-900">{item.category_name}</p>
+                            {/* Updated dark text classes */}
+                            <p className="text-sm text-gray-900 dark:text-zinc-100">{item.category_name}</p>
                             <button
                                 onClick={closeEdit}
-                                className="text-xs font-medium text-gray-500"
+                                className="text-xs font-medium text-gray-500 dark:text-zinc-400"
                             >
                                 Cancel
                             </button>
                         </div>
-                        <div className="mb-2 flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2">
-                            <span className="text-gray-500">₹</span>
+                        {/* Input Container Wrapper */}
+                        <div className="mb-2 flex items-center gap-2 rounded-lg border border-gray-300 dark:border-zinc-700 px-3 py-2 bg-transparent">
+                            <span className="text-gray-500 dark:text-zinc-400">₹</span>
                             <input
                                 type="number"
                                 inputMode="decimal"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                className="w-full text-sm text-gray-900 outline-none"
+                                className="w-full text-sm text-gray-900 dark:text-zinc-100 bg-transparent outline-none"
                                 autoFocus
                             />
                         </div>
-                        {error && <p className="mb-2 text-xs text-red-600">{error}</p>}
+                        {error && <p className="mb-2 text-xs text-red-600 dark:text-red-400">{error}</p>}
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setConfirmingDelete(true)}
                                 disabled={submitting}
-                                className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 disabled:opacity-50"
+                                /* Dark warning modes configured */
+                                className="rounded-lg bg-red-50 dark:bg-red-950/30 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 disabled:opacity-50"
                             >
                                 Delete
                             </button>
                             <button
                                 onClick={handleSave}
                                 disabled={submitting}
-                                className="ml-auto rounded-lg bg-gray-900 px-4 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+                                className="ml-auto rounded-lg bg-gray-900 dark:bg-zinc-100 px-4 py-1.5 text-xs font-medium text-white dark:text-zinc-950 disabled:opacity-50"
                             >
                                 {submitting ? 'Saving...' : 'Save'}
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <div className="rounded-lg bg-red-50 p-3">
-                        <p className="mb-3 text-sm text-red-700">
+                    /* Confirming Delete State Block */
+                    <div className="rounded-lg bg-red-50 dark:bg-red-950/20 p-3">
+                        <p className="mb-3 text-sm text-red-700 dark:text-red-300">
                             Delete this ₹{item.amount.toLocaleString('en-IN')} {item.category_name} expense?
                         </p>
-                        {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+                        {error && <p className="mb-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setConfirmingDelete(false)}
                                 disabled={submitting}
-                                className="flex-1 rounded-lg bg-white py-2 text-sm font-medium text-gray-700 shadow-sm disabled:opacity-50"
+                                className="flex-1 rounded-lg bg-white dark:bg-zinc-800 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 shadow-sm disabled:opacity-50 border dark:border-zinc-700"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleDelete}
                                 disabled={submitting}
-                                className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-medium text-white disabled:opacity-50"
+                                className="flex-1 rounded-lg bg-red-600 dark:bg-red-700 py-2 text-sm font-medium text-white disabled:opacity-50"
                             >
                                 {submitting ? 'Deleting...' : 'Yes, delete'}
                             </button>
@@ -182,18 +187,19 @@ export default function ActivityExpenseRow({
     }
 
     return (
+        /* Standard Row View Toggle Container */
         <button
             onClick={openEdit}
             disabled={!editable}
-            className={`flex w-full items-center justify-between py-3 text-left ${
-                showBorder ? 'border-b border-gray-100' : ''
-            } ${editable ? 'active:bg-gray-50' : ''}`}
+            className={`flex w-full items-center justify-between py-3 text-left transition-colors duration-150 ${
+                showBorder ? 'border-b border-gray-100 dark:border-zinc-800' : ''
+            } ${editable ? 'active:bg-gray-50 dark:active:bg-zinc-800/50' : ''}`}
         >
             <div>
-                <p className="text-sm text-gray-900">{item.category_name}</p>
-                {showOwner && <p className="text-xs text-gray-500">{item.user_name}</p>}
+                <p className="text-sm text-gray-900 dark:text-zinc-100">{item.category_name}</p>
+                {showOwner && <p className="text-xs text-gray-500 dark:text-zinc-400">{item.user_name}</p>}
             </div>
-            <p className="text-sm font-medium text-gray-900">
+            <p className="text-sm font-medium text-gray-900 dark:text-zinc-100">
                 ₹{item.amount.toLocaleString('en-IN')}
             </p>
         </button>
