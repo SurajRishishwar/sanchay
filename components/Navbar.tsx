@@ -2,14 +2,17 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 export default function Navbar({ isManager = false }: { isManager?: boolean }) {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [menuOpen, setMenuOpen] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null)
+    const activeJarId = searchParams.get('jar')
+    const monthsUrl = activeJarId ? `/history?jar=${activeJarId}` : '/history'
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -60,10 +63,10 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
                             Categories
                         </Link>
                     )}
-                    
+
                     {/* HIDE FOR MANAGERS (Desktop) */}
                     {!isManager && (
-                        <Link href="/history" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                        <Link href={monthsUrl} className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
                             Months
                         </Link>
                     )}
@@ -145,7 +148,7 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
                     {/* HIDE FOR MANAGERS (Mobile) */}
                     {!isManager && (
                         <Link
-                            href="/history"
+                            href={monthsUrl}
                             onClick={() => setMenuOpen(false)}
                             className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
                         >

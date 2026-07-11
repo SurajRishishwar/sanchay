@@ -16,11 +16,12 @@ type ActivityItem = {
     name: string
     ownerId: string
 }
-type Jar = { id: string; name: string }
+type Jar = { id: string; name: string; type?: string }
 
 export default function EntryScreen({
     jarId,
     jarName,
+    jarType = 'ongoing', // <-- Added jarType property config default setup
     allJars,
     userId,
     userName,
@@ -30,6 +31,7 @@ export default function EntryScreen({
 }: {
     jarId: string
     jarName: string
+    jarType?: 'ongoing' | 'event' // <-- Type specification
     allJars: Jar[]
     userId: string
     userName: string
@@ -42,6 +44,7 @@ export default function EntryScreen({
 
     const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null)
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+    const [isCustomCategory, setIsCustomCategory] = useState(false) // <-- Track if custom button clicked
     const [editingId, setEditingId] = useState<string | null>(null)
     const [confirmingDelete, setConfirmingDelete] = useState(false)
     const [amount, setAmount] = useState('')
@@ -49,30 +52,39 @@ export default function EntryScreen({
     const [error, setError] = useState<string | null>(null)
 
     const todayTotal = initialActivity.reduce((sum, item) => sum + item.amount, 0)
-    const sheetOpen = selectedCategoryName !== null
+    const sheetOpen = selectedCategoryName !== null || isCustomCategory
 
     /* --- FRONTEND SORTING LOGIC --- */
-    // 1. Count frequencies matching by category name from the initialActivity array
     const categoryCounts = initialActivity.reduce((acc, item) => {
         acc[item.category] = (acc[item.category] || 0) + 1
         return acc
     }, {} as Record<string, number>)
 
-    // 2. Sort the array: Frequent entries first, alphabetical fallback if tied/unlogged
     const sortedCategories = [...categories].sort((a, b) => {
         const countA = categoryCounts[a.name] || 0
         const countB = categoryCounts[b.name] || 0
 
         if (countB !== countA) {
-            return countB - countA // Higher usage count floats to top
+            return countB - countA
         }
-        return a.name.localeCompare(b.name) // Secondary fallback: A to Z alphabetical
+        return a.name.localeCompare(b.name)
     })
     /* -------------------------------- */
 
     function openAddSheet(cat: Category) {
         setSelectedCategoryName(cat.name)
         setSelectedCategoryId(cat.id)
+        setIsCustomCategory(false)
+        setEditingId(null)
+        setConfirmingDelete(false)
+        setAmount('')
+        setError(null)
+    }
+
+    function openCustomSheet() {
+        setSelectedCategoryName('')
+        setSelectedCategoryId(null)
+        setIsCustomCategory(true)
         setEditingId(null)
         setConfirmingDelete(false)
         setAmount('')
@@ -80,9 +92,10 @@ export default function EntryScreen({
     }
 
     function openEditSheet(item: ActivityItem) {
-        if (item.ownerId !== userId) return // only your own entries are editable
+        if (item.ownerId !== userId) return
         setSelectedCategoryName(item.category)
         setSelectedCategoryId(null)
+        setIsCustomCategory(false)
         setEditingId(item.id)
         setConfirmingDelete(false)
         setAmount(String(item.amount))
@@ -91,6 +104,7 @@ export default function EntryScreen({
 
     function closeSheet() {
         setSelectedCategoryName(null)
+        setIsCustomCategory(false)
         setEditingId(null)
         setConfirmingDelete(false)
     }
@@ -98,6 +112,10 @@ export default function EntryScreen({
     async function handleSave() {
         const value = parseFloat(amount)
         if (!value || value <= 0) return
+        if (isCustomCategory && (!selectedCategoryName || selectedCategoryName.trim() === '')) {
+            setError('Please type a category name')
+            return
+        }
 
         setSubmitting(true)
         setError(null)
@@ -120,8 +138,8 @@ export default function EntryScreen({
                 jar_id: jarId,
                 user_id: userId,
                 user_name: userName,
-                category_id: selectedCategoryId,
-                category_name: selectedCategoryName,
+                category_id: selectedCategoryId, // Will be null for custom categories
+                category_name: selectedCategoryName?.trim(),
                 amount: value,
             })
             setSubmitting(false)
@@ -171,18 +189,28 @@ export default function EntryScreen({
                         <div className='divide-y divide-gray-100 dark:divide-zinc-800 max-h-60 overflow-y-auto pr-6 md:max-h-none md:overflow-visible md:pr-0'>
                             <p className="mb-3 text-sm text-gray-600 dark:text-zinc-400">Tap a category to log an expense</p>
 
-                            {sortedCategories.length === 0 ? (
+                            {sortedCategories.length === 0 && jarType !== 'event' ? (
                                 <div className="rounded-xl bg-white p-4 text-sm text-gray-500 dark:bg-zinc-900 dark:text-zinc-400 shadow-sm">
                                     No categories yet. Ask your manager to add some before you can log expenses.
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-3 gap-2">
-                                    {/* FIXED: Loop over sortedCategories instead of categories */}
+                                    {/* 1. Render dynamic Custom button FIRST inside the grid layout if Event jar */}
+                                    {jarType === 'event' && (
+                                        <button
+                                            onClick={openCustomSheet}
+                                            className="rounded-xl bg-white px-3 py-4 text-sm font-medium text-blue-600 border border-transparent dark:bg-zinc-900 dark:text-blue-400 shadow-sm active:scale-95 transition-all outline-none cursor-pointer"
+                                        >
+                                            + Custom
+                                        </button>
+                                    )}
+
+                                    {/* 2. Loop over sortedCategories right after it */}
                                     {sortedCategories.map((cat) => (
                                         <button
                                             key={cat.id}
                                             onClick={() => openAddSheet(cat)}
-                                            className="rounded-xl bg-white px-3 py-4 text-sm font-medium text-gray-700 dark:bg-zinc-900 dark:text-zinc-100 shadow-sm active:scale-95 transition-all"
+                                            className="rounded-xl bg-white px-3 py-4 text-sm font-medium text-gray-700 dark:bg-zinc-900 dark:text-zinc-100 shadow-sm active:scale-95 transition-all outline-none"
                                         >
                                             {cat.name}
                                         </button>
@@ -236,7 +264,7 @@ export default function EntryScreen({
                 className={`fixed inset-0 z-20 bg-black transition-opacity duration-300 ${sheetOpen ? 'opacity-40 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
             />
 
-            {/* Sheet on mobile, centered modal on desktop */}
+            {/* Popup entry container */}
             <div
                 className={`fixed inset-0 z-30 flex items-end justify-center md:items-center ${sheetOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
             >
@@ -249,7 +277,7 @@ export default function EntryScreen({
                     <div className="mx-auto max-w-md">
                         <div className="mb-4 flex items-center justify-between">
                             <p className="text-base font-medium text-gray-900 dark:text-zinc-50">
-                                {selectedCategoryName ?? ''}
+                                {isCustomCategory ? 'Custom Category' : (selectedCategoryName ?? '')}
                                 {editingId && <span className="ml-2 text-xs font-normal text-gray-400 dark:text-zinc-500">Editing</span>}
                             </p>
                             <button
@@ -261,13 +289,30 @@ export default function EntryScreen({
                             </button>
                         </div>
 
+                        {/* Text Category configuration setup logic rendered dynamically for custom rows */}
+                        {isCustomCategory && (
+                            <div className="mb-4">
+                                <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-zinc-400">Category Name</label>
+                                <div className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-zinc-700 px-3 py-2">
+                                    <input
+                                        type="text"
+                                        placeholder="e.g., Uber, Hotel, Coffee"
+                                        value={selectedCategoryName ?? ''}
+                                        onChange={(e) => setSelectedCategoryName(e.target.value)}
+                                        className="w-full text-sm text-gray-900 bg-transparent dark:text-zinc-50 outline-none"
+                                        autoFocus={isCustomCategory}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-zinc-400">Amount</label>
                         <div className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-zinc-700 px-3 py-2.5">
                             <span className="text-gray-500 dark:text-zinc-400">₹</span>
                             <input
                                 type="number"
                                 inputMode="decimal"
-                                autoFocus={sheetOpen}
+                                autoFocus={!isCustomCategory && sheetOpen}
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
                                 placeholder="0"
@@ -280,7 +325,7 @@ export default function EntryScreen({
                         <button
                             onClick={handleSave}
                             disabled={submitting}
-                            className="mt-4 w-full rounded-lg bg-gray-900 py-3 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-900 disabled:opacity-50 transition-colors"
+                            className="mt-4 w-full rounded-lg bg-gray-900 py-3 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-900 disabled:opacity-50 transition-colors cursor-pointer"
                         >
                             {submitting ? 'Saving...' : editingId ? 'Save changes' : 'Add expense'}
                         </button>
