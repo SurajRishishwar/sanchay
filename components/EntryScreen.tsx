@@ -51,18 +51,22 @@ export default function EntryScreen({
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     
-    // Track keyboard focus state to shift the modal up on mobile layout
+    // Track keyboard focus state
     const [isKeyboardActive, setIsKeyboardActive] = useState(false)
 
     const todayTotal = initialActivity.reduce((sum, item) => sum + item.amount, 0)
     const sheetOpen = selectedCategoryName !== null || isCustomCategory
 
-    /* --- KEYBOARD DETECTION HOOK --- */
+    /* --- KEYBOARD DETECTION & AUTO-SCROLL HOOK --- */
     useEffect(() => {
         const handleFocus = () => {
-            // Only trigger translation shifts on mobile viewports
             if (window.innerWidth < 768) {
                 setIsKeyboardActive(true)
+                // Short timeout to let the device layout adjust to the virtual keyboard footprint
+                setTimeout(() => {
+                    const modalElement = document.getElementById('modal-card')
+                    modalElement?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+                }, 300)
             }
         }
         const handleBlur = () => setIsKeyboardActive(false)
@@ -291,19 +295,18 @@ export default function EntryScreen({
                 className={`fixed inset-0 z-20 bg-black transition-opacity duration-300 ${sheetOpen ? 'opacity-40 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
             />
 
-            {/* Popup entry container */}
+            {/* Popup entry container (added overflow-y-auto so page can scroll to the end of sheet contents) */}
             <div
-                className={`fixed inset-0 z-30 flex items-end justify-center md:items-center ${sheetOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                className={`fixed inset-0 z-30 flex items-end justify-center md:items-center overflow-y-auto pb-4 ${
+                    sheetOpen ? 'pointer-events-auto' : 'pointer-events-none'
+                }`}
             >
                 <div
+                    id="modal-card"
                     className={`w-full rounded-t-2xl bg-white p-5 shadow-lg transition-all duration-300 ease-out md:mx-4 md:w-full md:max-w-md md:rounded-2xl ${
                         sheetOpen
                         ? 'translate-y-0 opacity-100 md:scale-100'
                         : 'translate-y-full opacity-0 md:translate-y-0 md:scale-95'
-                    } ${
-                        isKeyboardActive 
-                        ? '-translate-y-[280px] md:translate-y-0' // Slid up above mobile keyboard, resets on desktop
-                        : ''
                     } dark:bg-zinc-900`}
                 >
                     <div className="mx-auto max-w-md">
