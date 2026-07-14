@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import JarSwitcher from '@/components/JarSwitcher'
@@ -21,7 +21,7 @@ type Jar = { id: string; name: string; type?: string }
 export default function EntryScreen({
     jarId,
     jarName,
-    jarType = 'ongoing', // <-- Added jarType property config default setup
+    jarType = 'ongoing',
     allJars,
     userId,
     userName,
@@ -31,7 +31,7 @@ export default function EntryScreen({
 }: {
     jarId: string
     jarName: string
-    jarType?: 'ongoing' | 'event' // <-- Type specification
+    jarType?: 'ongoing' | 'event'
     allJars: Jar[]
     userId: string
     userName: string
@@ -44,15 +44,44 @@ export default function EntryScreen({
 
     const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null)
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
-    const [isCustomCategory, setIsCustomCategory] = useState(false) // <-- Track if custom button clicked
+    const [isCustomCategory, setIsCustomCategory] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [confirmingDelete, setConfirmingDelete] = useState(false)
     const [amount, setAmount] = useState('')
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    
+    // Track keyboard focus state to shift the modal up on mobile layout
+    const [isKeyboardActive, setIsKeyboardActive] = useState(false)
 
     const todayTotal = initialActivity.reduce((sum, item) => sum + item.amount, 0)
     const sheetOpen = selectedCategoryName !== null || isCustomCategory
+
+    /* --- KEYBOARD DETECTION HOOK --- */
+    useEffect(() => {
+        const handleFocus = () => {
+            // Only trigger translation shifts on mobile viewports
+            if (window.innerWidth < 768) {
+                setIsKeyboardActive(true)
+            }
+        }
+        const handleBlur = () => setIsKeyboardActive(false)
+
+        const amountInput = document.getElementById('amount-input')
+        const customInput = document.getElementById('custom-category-input')
+
+        amountInput?.addEventListener('focus', handleFocus)
+        amountInput?.addEventListener('blur', handleBlur)
+        customInput?.addEventListener('focus', handleFocus)
+        customInput?.addEventListener('blur', handleBlur)
+
+        return () => {
+            amountInput?.removeEventListener('focus', handleFocus)
+            amountInput?.removeEventListener('blur', handleBlur)
+            customInput?.removeEventListener('focus', handleFocus)
+            customInput?.removeEventListener('blur', handleBlur)
+        }
+    }, [sheetOpen])
 
     /* --- FRONTEND SORTING LOGIC --- */
     const categoryCounts = initialActivity.reduce((acc, item) => {
@@ -69,7 +98,6 @@ export default function EntryScreen({
         }
         return a.name.localeCompare(b.name)
     })
-    /* -------------------------------- */
 
     function openAddSheet(cat: Category) {
         setSelectedCategoryName(cat.name)
@@ -107,6 +135,7 @@ export default function EntryScreen({
         setIsCustomCategory(false)
         setEditingId(null)
         setConfirmingDelete(false)
+        setIsKeyboardActive(false)
     }
 
     async function handleSave() {
@@ -138,7 +167,7 @@ export default function EntryScreen({
                 jar_id: jarId,
                 user_id: userId,
                 user_name: userName,
-                category_id: selectedCategoryId, // Will be null for custom categories
+                category_id: selectedCategoryId,
                 category_name: selectedCategoryName?.trim(),
                 amount: value,
             })
@@ -195,7 +224,6 @@ export default function EntryScreen({
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-3 gap-2">
-                                    {/* 1. Render dynamic Custom button FIRST inside the grid layout if Event jar */}
                                     {jarType === 'event' && (
                                         <button
                                             onClick={openCustomSheet}
@@ -205,7 +233,6 @@ export default function EntryScreen({
                                         </button>
                                     )}
 
-                                    {/* 2. Loop over sortedCategories right after it */}
                                     {sortedCategories.map((cat) => (
                                         <button
                                             key={cat.id}
@@ -269,10 +296,15 @@ export default function EntryScreen({
                 className={`fixed inset-0 z-30 flex items-end justify-center md:items-center ${sheetOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
             >
                 <div
-                    className={`w-full rounded-t-2xl bg-white p-5 shadow-lg transition-all duration-300 ease-out md:mx-4 md:w-full md:max-w-md md:rounded-2xl ${sheetOpen
+                    className={`w-full rounded-t-2xl bg-white p-5 shadow-lg transition-all duration-300 ease-out md:mx-4 md:w-full md:max-w-md md:rounded-2xl ${
+                        sheetOpen
                         ? 'translate-y-0 opacity-100 md:scale-100'
                         : 'translate-y-full opacity-0 md:translate-y-0 md:scale-95'
-                        } dark:bg-zinc-900`}
+                    } ${
+                        isKeyboardActive 
+                        ? '-translate-y-[280px] md:translate-y-0' // Slid up above mobile keyboard, resets on desktop
+                        : ''
+                    } dark:bg-zinc-900`}
                 >
                     <div className="mx-auto max-w-md">
                         <div className="mb-4 flex items-center justify-between">
@@ -289,12 +321,12 @@ export default function EntryScreen({
                             </button>
                         </div>
 
-                        {/* Text Category configuration setup logic rendered dynamically for custom rows */}
                         {isCustomCategory && (
                             <div className="mb-4">
                                 <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-zinc-400">Category Name</label>
                                 <div className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-zinc-700 px-3 py-2">
                                     <input
+                                        id="custom-category-input"
                                         type="text"
                                         placeholder="e.g., Uber, Hotel, Coffee"
                                         value={selectedCategoryName ?? ''}
@@ -310,6 +342,7 @@ export default function EntryScreen({
                         <div className="flex items-center gap-2 rounded-lg border border-gray-300 dark:border-zinc-700 px-3 py-2.5">
                             <span className="text-gray-500 dark:text-zinc-400">₹</span>
                             <input
+                                id="amount-input"
                                 type="number"
                                 inputMode="decimal"
                                 autoFocus={!isCustomCategory && sheetOpen}
