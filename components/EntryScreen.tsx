@@ -62,11 +62,11 @@ export default function EntryScreen({
         const handleFocus = () => {
             if (window.innerWidth < 768) {
                 setIsKeyboardActive(true)
-                // Short timeout to let the device layout adjust to the virtual keyboard footprint
+                // Wait 350ms for the virtual keyboard to fully slide up on mobile
                 setTimeout(() => {
-                    const modalElement = document.getElementById('modal-card')
-                    modalElement?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-                }, 300)
+                    const saveButton = document.getElementById('save-expense-btn')
+                    saveButton?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }, 350)
             }
         }
         const handleBlur = () => setIsKeyboardActive(false)
@@ -295,21 +295,21 @@ export default function EntryScreen({
                 className={`fixed inset-0 z-20 bg-black transition-opacity duration-300 ${sheetOpen ? 'opacity-40 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
             />
 
-            {/* Popup entry container (added overflow-y-auto so page can scroll to the end of sheet contents) */}
+            {/* Popup entry container */}
             <div
-                className={`fixed inset-0 z-30 flex items-end justify-center md:items-center overflow-y-auto pb-4 ${
+                className={`fixed inset-0 z-30 flex items-end justify-center md:items-center overflow-y-auto p-4 pb-10 ${
                     sheetOpen ? 'pointer-events-auto' : 'pointer-events-none'
                 }`}
             >
                 <div
                     id="modal-card"
-                    className={`w-full rounded-t-2xl bg-white p-5 shadow-lg transition-all duration-300 ease-out md:mx-4 md:w-full md:max-w-md md:rounded-2xl ${
+                    className={`w-full max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-5 shadow-lg transition-all duration-300 ease-out md:max-w-md ${
                         sheetOpen
                         ? 'translate-y-0 opacity-100 md:scale-100'
                         : 'translate-y-full opacity-0 md:translate-y-0 md:scale-95'
                     } dark:bg-zinc-900`}
                 >
-                    <div className="mx-auto max-w-md">
+                    <div className="mx-auto max-w-md pb-4">
                         <div className="mb-4 flex items-center justify-between">
                             <p className="text-base font-medium text-gray-900 dark:text-zinc-50">
                                 {isCustomCategory ? 'Custom Category' : (selectedCategoryName ?? '')}
@@ -359,9 +359,10 @@ export default function EntryScreen({
                         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
                         <button
+                            id="save-expense-btn"
                             onClick={handleSave}
                             disabled={submitting}
-                            className="mt-4 w-full rounded-lg bg-gray-900 py-3 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-900 disabled:opacity-50 transition-colors cursor-pointer"
+                            className="mt-6 w-full rounded-lg bg-gray-900 py-3 text-sm font-medium text-white dark:bg-zinc-50 dark:text-zinc-900 disabled:opacity-50 transition-colors cursor-pointer"
                         >
                             {submitting ? 'Saving...' : editingId ? 'Save changes' : 'Add expense'}
                         </button>
