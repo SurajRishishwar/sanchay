@@ -54,16 +54,19 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
  
   // Anyone not logged in gets sent to /login, UNLESS they're
-
-  // already heading to /login or /signup.
+  // already heading to /login or /signup, or hitting an /api/cron
+  // route — those are called by cron jobs with no browser session,
+  // and are protected separately via CRON_SECRET inside the route.
 
   const isAuthPage =
 
     request.nextUrl.pathname.startsWith('/login') ||
 
     request.nextUrl.pathname.startsWith('/signup')
- 
-  if (!user && !isAuthPage) {
+
+  const isCronRoute = request.nextUrl.pathname.startsWith('/api/cron')
+
+  if (!user && !isAuthPage && !isCronRoute) {
 
     const url = request.nextUrl.clone()
 
@@ -100,4 +103,3 @@ export const config = {
   ],
 
 }
- 
