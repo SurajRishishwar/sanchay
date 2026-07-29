@@ -7,7 +7,6 @@ import ActivityExpenseRow from '@/components/ActivityExpenseRow'
 import DownloadHistoryButton from '@/components/DownloadHistoryButton'
 
 const PAGE_SIZE = 10
-// ... keep your imports the same ...
 
 export default async function MonthHistoryPage({
     searchParams,
@@ -29,10 +28,10 @@ export default async function MonthHistoryPage({
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
 
-    // ... (Keep profile and jar memberships fetching exactly the same) ...
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
     const { data: memberships } = await supabase.from('jar_members').select('jar_id, is_default, jars(id, name)').eq('user_id', user.id)
     if (!memberships || memberships.length === 0) redirect('/')
+    
     const requestedMembership = requestedJarId ? memberships.find((m) => m.jar_id === requestedJarId) : undefined
     const defaultMembership = memberships.find((m) => m.is_default) ?? memberships[0]
     const activeMembership = requestedMembership ?? defaultMembership
@@ -43,20 +42,18 @@ export default async function MonthHistoryPage({
     const endDate = `${currentYear}-${activeMonth}-${String(lastDay).padStart(2, '0')}`
 
     /* ------------------------------------------------------------- */
-    /* 1. NEW: FETCH ALL MONTHLY ENTRIES TO CALCULATE ACCURATE STATS  */
+    /* 1. FETCH ALL MONTHLY ENTRIES FOR THE ENTIRE JAR (No user_id filter) */
     /* ------------------------------------------------------------- */
     const { data: allMonthlyEntries } = await supabase
         .from('expenses')
-        .select('amount, category_name, entry_date')
-        .eq('jar_id', jar.id)
-        .eq('user_id', user.id)
+        .select('amount, category_name, entry_date, user_name')
+        .eq('jar_id', jar.id) // <-- Removed .eq('user_id', user.id)
         .gte('entry_date', startDate)
         .lte('entry_date', endDate)
 
-    // Calculate dynamic stats
+    // Calculate dynamic stats for the whole Jar
     const totalMonthlyExpense = allMonthlyEntries?.reduce((sum, item) => sum + Number(item.amount), 0) || 0
 
-    // Find top category
     const categoryTotals = allMonthlyEntries?.reduce((acc, item) => {
         acc[item.category_name] = (acc[item.category_name] || 0) + Number(item.amount)
         return acc
@@ -64,14 +61,14 @@ export default async function MonthHistoryPage({
 
     const topCategoryEntry = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]
     const topCategoryName = topCategoryEntry ? topCategoryEntry[0] : 'None'
-    /* ------------------------------------------------------------- */
 
-    // 2. Paginated Query (Kept exactly as you had it for display list)
+    /* ------------------------------------------------------------- */
+    /* 2. PAGINATED QUERY FOR ALL JAR EXPENSES                        */
+    /* ------------------------------------------------------------- */
     const { data: expenses, count } = await supabase
         .from('expenses')
         .select('id, amount, category_name, user_name, user_id, entry_date, is_recurring', { count: 'exact' })
-        .eq('jar_id', jar.id)
-        .eq('user_id', user.id)
+        .eq('jar_id', jar.id) // <-- Removed .eq('user_id', user.id)
         .gte('entry_date', startDate)
         .lte('entry_date', endDate)
         .order('entry_date', { ascending: false })
@@ -116,24 +113,21 @@ export default async function MonthHistoryPage({
                     <div className="mb-6 flex items-start justify-between gap-3">
                         <div>
                             <h1 className="text-lg font-medium text-gray-900 dark:text-zinc-50">{jar.name} Monthly History</h1>
-                            <p className="text-sm text-gray-500 dark:text-zinc-400">Current Year -  {currentYear}</p>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400">Current Year - {currentYear}</p>
                         </div>
                         <Link href={`/?jar=${jar.id}`} className="shrink-0 text-sm font-medium text-blue-600 dark:text-blue-400">
                             Back
                         </Link>
                     </div>
 
-                    {/* Interactive Dropdown Client Selector Component */}
+                    {/* Dropdown Selector */}
                     <MonthDropdownSelector
                         jarId={jar.id}
                         activeMonth={activeMonth}
                         currentYear={currentYear}
                     />
 
-                    {/* ------------------------------------------------------------- */}
-                    {/* NEW: STATS SNAPSHOT CARDS                                    */}
-                    {/* ------------------------------------------------------------- */}
-
+                    {/* Stats Card */}
                     <div className="mb-6">
                         <div className="rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 w-full flex flex-col gap-1">
                             <div>
@@ -146,16 +140,15 @@ export default async function MonthHistoryPage({
                             </div>
 
                             <DownloadHistoryButton
-                                expenses={(allMonthlyEntries || []) as Array<{ category_name: string; entry_date: string; amount: string | number }>}
+                                expenses={(allMonthlyEntries || []) as Array<{ category_name: string; entry_date: string; amount: string | number; user_name?: string }>}
                                 monthLabel={new Date(currentYear, parseInt(activeMonth, 10) - 1).toLocaleString('en-US', { month: 'long' })}
                                 year={currentYear}
                                 totalAmount={totalMonthlyExpense}
                                 isCurrentMonth={activeMonth === currentMonthStr}
-                                disabled={totalMonthlyExpense === 0} // 3. Disables button instantly if total is ₹0
+                                disabled={totalMonthlyExpense === 0}
                             />
                         </div>
                     </div>
-                    {/* ------------------------------------------------------------- */}
 
                     {/* Meta Counters */}
                     {totalCount > 0 && (
@@ -188,7 +181,7 @@ export default async function MonthHistoryPage({
                                                 key={item.id}
                                                 item={item}
                                                 currentUserId={user.id}
-                                                showOwner={false}
+                                                showOwner={true} // <-- Changed to true so users can see who added which expense
                                                 showBorder={i < group.items!.length - 1}
                                             />
                                         ))}
@@ -198,7 +191,7 @@ export default async function MonthHistoryPage({
                         })
                     )}
 
-                    {/* Pagination Card */}
+                    {/* Pagination */}
                     {totalPages > 1 && (
                         <div className="mt-4 flex items-center justify-between rounded-xl bg-white p-3 shadow-sm dark:bg-zinc-900">
                             {page > 1 ? (
