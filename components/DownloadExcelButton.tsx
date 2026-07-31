@@ -38,8 +38,10 @@ export default function DownloadExcelButton({
 
       if (jarType === 'ongoing') {
         const [year, month] = selectedMonth.split('-').map(Number)
-        const startOfMonth = new Date(year, month - 1, 1).toISOString().split('T')[0]
-        const endOfMonth = new Date(year, month, 0).toISOString().split('T')[0]
+        
+        const startOfMonth = `${year}-${String(month).padStart(2, '0')}-01`
+        const lastDay = new Date(year, month, 0).getDate()
+        const endOfMonth = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
 
         query = query.gte('entry_date', startOfMonth).lte('entry_date', endOfMonth)
         
@@ -52,6 +54,15 @@ export default function DownloadExcelButton({
 
       const totalExpense = (expenses ?? []).reduce((sum, e) => sum + Number(e.amount), 0)
 
+      // 1. Group expenses by category and sum amounts
+      const categoryTotals = (expenses ?? []).reduce((acc, curr) => {
+        const catName = curr.category_name || 'Uncategorized'
+        const amount = Number(curr.amount) || 0
+        acc[catName] = (acc[catName] || 0) + amount
+        return acc
+      }, {} as Record<string, number>)
+
+      // 2. Build CSV rows
       const csvRows = [
         `"Jar Report"`,
         `"Jar Name:","${jarName}"`,
@@ -60,10 +71,27 @@ export default function DownloadExcelButton({
         `"Total Expense (₹):",${totalExpense}`,
         `"Remaining Balance (₹):",${budget - totalExpense}`,
         ``, 
-        `"--- Line Item Entries ---"`,
-        `"Date","User Name","Category","Amount (₹)"`
+        `"--- Category Summary ---"`,
+        `"Category","Total Amount (₹)"`
       ]
 
+      // Add category summary rows (sorted by highest spend first)
+      Object.entries(categoryTotals)
+        .sort(([, amountA], [, amountB]) => amountB - amountA)
+        .forEach(([catName, sumAmount]) => {
+          csvRows.push([
+            `"${catName.replace(/"/g, '""')}"`,
+            sumAmount
+          ].join(','))
+        })
+
+      csvRows.push(
+        ``,
+        `"--- Line Item Entries ---"`,
+        `"Date","User Name","Category","Amount (₹)"`
+      )
+
+      // Add detailed line items
       if (expenses && expenses.length > 0) {
         expenses.forEach(e => {
           csvRows.push([
@@ -81,7 +109,7 @@ export default function DownloadExcelButton({
       
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', `${jarName.toLowerCase().replace(/\s+/g, '_')}_${selectedMonth}_report.csv`)
+      link.setAttribute('download', `${jarName.toLowerCase().replace(/\s+/g, '_')}_${selectedMonth}.csv`)
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

@@ -27,8 +27,11 @@ export default async function JarDetailPage({
   const selectedMonth = sParams.month || currentMonthStr
 
   const [year, month] = selectedMonth.split('-').map(Number)
-  const startOfMonth = new Date(year, month - 1, 1).toISOString().split('T')[0]
-  const endOfMonth = new Date(year, month, 0).toISOString().split('T')[0]
+  
+  // FIX: Properly compute start and end date strings for the selected month
+  const startOfMonth = `${year}-${String(month).padStart(2, '0')}-01`
+  const lastDay = new Date(year, month, 0).getDate() // Returns last day of the month (e.g., 31 for July)
+  const endOfMonth = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
 
   const supabase = await createClient()
 
