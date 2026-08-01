@@ -44,6 +44,11 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
                 {/* Desktop links */}
                 <div className="hidden items-center gap-4 md:flex">
                     {isManager && (
+                        <Link href="/manager/tasks" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
+                            Tasks
+                        </Link>
+                    )}
+                    {isManager && (
                         <Link href="/manager/users" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
                             Users
                         </Link>
@@ -108,6 +113,15 @@ export default function Navbar({ isManager = false }: { isManager?: boolean }) {
             {menuOpen && (
                 /* REMOVED ref={menuRef} from here */
                 <div className="mt-3 flex flex-col gap-1 border-t border-gray-100 dark:border-zinc-800 pt-3 md:hidden">
+                    {isManager && (
+                        <Link
+                            href="/manager/tasks"
+                            onClick={() => setMenuOpen(false)}
+                            className="rounded-lg px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                        >
+                            Tasks
+                        </Link>
+                    )}
                     {isManager && (
                         <Link
                             href="/manager/users"

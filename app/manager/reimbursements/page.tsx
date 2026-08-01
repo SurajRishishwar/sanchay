@@ -4,21 +4,32 @@ import Navbar from '@/components/Navbar'
 import NavLinkButton from '@/components/NavLinkButton'
 import SettlementManager from '@/components/SettlementManager'
 
-function parseMonthParam(monthParam?: string): Date {
+// Formats a local date to YYYY-MM-DD string without timezone conversion
+function formatLocalDate(year: number, monthZeroIndexed: number, day: number): string {
+  const y = year
+  const m = String(monthZeroIndexed + 1).padStart(2, '0')
+  const d = String(day).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+function parseMonthParam(monthParam?: string): { year: number; monthZeroBased: number } {
   if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
     const [y, m] = monthParam.split('-').map(Number)
-    return new Date(y, m - 1, 1)
+    return { year: y, monthZeroBased: m - 1 }
   }
   const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth(), 1)
+  return { year: now.getFullYear(), monthZeroBased: now.getMonth() }
 }
 
-function monthKey(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+function monthKey(year: number, monthZeroBased: number) {
+  return `${year}-${String(monthZeroBased + 1).padStart(2, '0')}`
 }
 
-function monthLabel(d: Date) {
-  return d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+function monthLabel(year: number, monthZeroBased: number) {
+  return new Date(year, monthZeroBased, 1).toLocaleDateString('en-IN', {
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 export default async function ReimbursementsPage({
@@ -27,18 +38,26 @@ export default async function ReimbursementsPage({
   searchParams: Promise<{ month?: string }>
 }) {
   const { month: monthParam } = await searchParams
-  const monthStart = parseMonthParam(monthParam)
-  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1)
+  const { year, monthZeroBased } = parseMonthParam(monthParam)
 
-  const prevMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() - 1, 1)
-  const nextMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1)
+  // Calculate local month start and end dates
+  const startDateStr = formatLocalDate(year, monthZeroBased, 1)
+  
+  // Last day of current month
+  const lastDayNumber = new Date(year, monthZeroBased + 1, 0).getDate()
+  const endDateStr = formatLocalDate(year, monthZeroBased, lastDayNumber)
+
+  // Bounds for timestamp columns (created_at)
+  const startTimestampStr = `${startDateStr}T00:00:00.000Z`
+  const endTimestampStr = `${endDateStr}T23:59:59.999Z`
+
+  // Previous & Next navigation logic
+  const prevDate = new Date(year, monthZeroBased - 1, 1)
+  const nextDate = new Date(year, monthZeroBased + 1, 1)
 
   const realNow = new Date()
   const currentRealMonth = new Date(realNow.getFullYear(), realNow.getMonth(), 1)
-  const isNextDisabled = nextMonth > currentRealMonth
-
-  const monthStartStr = monthStart.toISOString().split('T')[0]
-  const monthEndStr = monthEnd.toISOString().split('T')[0]
+  const isNextDisabled = nextDate > currentRealMonth
 
   const supabase = await createClient()
 
@@ -61,18 +80,20 @@ export default async function ReimbursementsPage({
     .select('id, name')
     .order('name')
 
+  // Query expenses using clean DATE strings (YYYY-MM-DD)
   const { data: expenses } = await supabase
     .from('expenses')
     .select('id, jar_id, user_id, user_name, amount, category_name, entry_date')
-    .gte('entry_date', monthStartStr)
-    .lt('entry_date', monthEndStr)
+    .gte('entry_date', startDateStr)
+    .lte('entry_date', endDateStr)
     .order('entry_date', { ascending: false })
 
+  // Query advances using full day TIMESTAMPS
   const { data: advances } = await supabase
     .from('jar_advances')
     .select('id, jar_id, user_id, amount, note, created_at')
-    .gte('created_at', monthStartStr)
-    .lt('created_at', monthEndStr)
+    .gte('created_at', startTimestampStr)
+    .lte('created_at', endTimestampStr)
     .order('created_at', { ascending: false })
 
   const jarGroups = (jars ?? []).map((jar) => {
@@ -168,17 +189,19 @@ export default async function ReimbursementsPage({
 
           <div className="mb-4 flex items-center justify-between rounded-xl bg-white p-3 shadow-sm border border-gray-100 dark:bg-zinc-900 dark:border-zinc-900">
             <NavLinkButton
-              href={`?month=${monthKey(prevMonth)}`}
+              href={`?month=${monthKey(prevDate.getFullYear(), prevDate.getMonth())}`}
               className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
             >
               ← Prev
             </NavLinkButton>
-            <p className="text-sm font-semibold text-gray-900 dark:text-zinc-50">{monthLabel(monthStart)}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-zinc-50">
+              {monthLabel(year, monthZeroBased)}
+            </p>
             {isNextDisabled ? (
               <span className="text-sm font-medium text-gray-300 dark:text-zinc-700">Next →</span>
             ) : (
               <NavLinkButton
-                href={`?month=${monthKey(nextMonth)}`}
+                href={`?month=${monthKey(nextDate.getFullYear(), nextDate.getMonth())}`}
                 className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
               >
                 Next →

@@ -38,10 +38,11 @@ export default async function ManagerPage() {
 
   // Spend so far, per Jar. Ongoing Jars only count the current
   // month; Event Jars count everything since they never reset.
+  // Construct YYYY-MM-01 in local time to avoid UTC conversion shifts
   const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split('T')[0]
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const monthStart = `${year}-${month}-01`
 
   const jarSummaries = await Promise.all(
     jarList.map(async (jar) => {
