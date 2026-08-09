@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar'
 import NavLinkButton from '@/components/NavLinkButton'
 import ActivityExpenseRow from '@/components/ActivityExpenseRow'
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 15
 
 export default async function ActivityPage({
     searchParams,

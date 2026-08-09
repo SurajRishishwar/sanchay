@@ -209,7 +209,7 @@ export default async function ReimbursementsPage({
             )}
           </div>
 
-          <SettlementManager jarGroups={jarGroups} />
+          <SettlementManager jarGroups={jarGroups} selectedDate={startDateStr} />
         </div>
       </div>
     </div>

@@ -35,11 +35,15 @@ type JarGroup = {
   members: Member[]
 }
 
+interface SettlementManagerProps {
+  jarGroups: JarGroup[]
+  selectedDate?: string // ISO string or date string representing the selected month context
+}
+
 export default function SettlementManager({
   jarGroups,
-}: {
-  jarGroups: JarGroup[]
-}) {
+  selectedDate,
+}: SettlementManagerProps) {
   const router = useRouter()
   const { showToast } = useToast()
 
@@ -53,6 +57,23 @@ export default function SettlementManager({
 
   const [advanceAmount, setAdvanceAmount] = useState('')
   const [advanceNote, setAdvanceNote] = useState('')
+
+  // Helper to determine target timestamp based on context date
+  function getTimestamp() {
+    if (!selectedDate) return new Date().toISOString()
+    const targetDate = new Date(selectedDate)
+    const now = new Date()
+
+    // If selected month is current month, use exact current time; otherwise use the target date context
+    if (
+      targetDate.getFullYear() === now.getFullYear() &&
+      targetDate.getMonth() === now.getMonth()
+    ) {
+      return now.toISOString()
+    }
+
+    return targetDate.toISOString()
+  }
 
   // Add Advance Handler
   async function handleAddAdvance(jarId: string, userId: string) {
@@ -70,7 +91,7 @@ export default function SettlementManager({
       user_id: userId,
       amount: Number(advanceAmount),
       note: advanceNote.trim() || null,
-      created_at: new Date().toISOString(),
+      created_at: getTimestamp(),
     })
 
     setBusyKey(null)
@@ -152,7 +173,7 @@ export default function SettlementManager({
       user_id: userId,
       amount: dueAmount,
       note: 'Settlement Payment',
-      created_at: new Date().toISOString(),
+      created_at: getTimestamp(),
     })
 
     setBusyKey(null)
@@ -254,14 +275,14 @@ export default function SettlementManager({
                         {/* Advances List */}
                         {m.advancesList.length > 0 && (
                           <div className="space-y-1.5">
-                            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Advances Given</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Advances Given</p>
                             {m.advancesList.map((adv) => (
-                              <div key={adv.id} className="flex items-center justify-between text-xs bg-white p-2 rounded border border-gray-100 dark:bg-zinc-800 dark:border-zinc-700/50">
+                              <div key={adv.id} className="flex items-center justify-between rounded border border-gray-100 bg-white p-2 text-xs dark:border-zinc-700/50 dark:bg-zinc-800">
                                 <div>
                                   <span className="font-medium text-gray-800 dark:text-zinc-200">
                                     ₹{adv.amount.toLocaleString('en-IN')}
                                   </span>
-                                  {adv.note && <span className="ml-2 text-gray-500 italic">({adv.note})</span>}
+                                  {adv.note && <span className="ml-2 italic text-gray-500">({adv.note})</span>}
                                   <span className="ml-2 text-[10px] text-gray-400">
                                     {new Date(adv.created_at).toLocaleDateString('en-IN')}
                                   </span>
@@ -284,7 +305,7 @@ export default function SettlementManager({
                         {/* Expense Items List */}
                         {m.items.length > 0 && (
                           <div className="space-y-1.5">
-                            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Expenses Logged</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Expenses Logged</p>
                             {m.items.map((item) => (
                               <div key={item.id} className="flex items-center justify-between text-xs">
                                 <div>
@@ -312,8 +333,8 @@ export default function SettlementManager({
 
       {/* Modal for Adding, Editing, or Deleting an Advance */}
       {(addModal || editModal) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-lg dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-xl border border-gray-100 bg-white p-5 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
             <h3 className="text-base font-semibold text-gray-900 dark:text-zinc-100">
               {addModal ? `Add Advance for ${addModal.userName}` : 'Edit Advance Amount'}
             </h3>
@@ -327,13 +348,13 @@ export default function SettlementManager({
                   value={advanceAmount}
                   onChange={(e) => setAdvanceAmount(e.target.value)}
                   disabled={isDeleting}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-gray-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 disabled:opacity-50"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-gray-900 focus:outline-none disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 dark:text-zinc-300">
-                  Note <span className="text-gray-400 font-normal">(Optional)</span>
+                  Note <span className="font-normal text-gray-400">(Optional)</span>
                 </label>
                 <input
                   type="text"
@@ -341,7 +362,7 @@ export default function SettlementManager({
                   value={advanceNote}
                   onChange={(e) => setAdvanceNote(e.target.value)}
                   disabled={isDeleting}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-gray-900 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 disabled:opacity-50"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-gray-900 focus:outline-none disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
               </div>
             </div>
