@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 // CONFIG — edit these
 // ─────────────────────────────────────────────────────────────
 
-const WEDDING_DATE = '2027-08-28' // YYYY-MM-DD, interpreted in TIMEZONE
+const WEDDING_DATE = '2026-08-28' // YYYY-MM-DD, interpreted in TIMEZONE
 const TIMEZONE = 'Asia/Kolkata'
 
 const BRIDE_NAME = "Bride"
