@@ -11,19 +11,19 @@ export const dynamic = 'force-dynamic'
 const WEDDING_DATE = '2027-04-25' // YYYY-MM-DD, interpreted in TIMEZONE
 const TIMEZONE = 'Asia/Kolkata'
 
-const BRIDE_NAME = "Bride"
+const BRIDE_NAME = "Vanshika"
 const BRIDE_EMAIL = 'flubwastebank@gmail.com'
-const GROOM_NAME = "Groom"
+const GROOM_NAME = "Suraj"
 
 // Fix once, on the day this system first goes live. Used so the heart-fill
 // % is stable for the whole run rather than recalculated every send.
 const TOTAL_DAYS_AT_START = 300 // = WEDDING_DATE - go-live date, set once, never change
 
 const FESTIVE_DAYS: Record<string, string> = {
-  '2026-03-04': 'Wishing you a joyful Holi, {name} 🎨 — and only {count} to go until forever.',
-  '2026-11-08': 'Wishing you a joyful Diwali, {name} 🪔 — and only {count} to go until forever.',
-  '2026-01-01': 'Happy New Year, {name} 🎉 — and only {count} to go until forever.',
-  // 'YYYY-MM-DD': 'Happy Birthday, {name}! 🎂 — and only {count} to go until forever.',
+  '2026-08-25': 'Wishing you a joyful Holi, {name} 🎨 — and only {count} to go until forever.',
+  '2026-08-26': 'Wishing you a joyful Diwali, {name} 🪔 — and only {count} to go until forever.',
+  '2026-08-27': 'Happy New Year, {name} 🎉 — and only {count} to go until forever.',
+  '2026-08-28': 'Happy Birthday, {name}! 🎂 — and only {count} to go until forever.',
 }
 
 const MILESTONES: Record<number, string> = {
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
   if (!shouldSend) {
     return NextResponse.json({
       sent: false,
-      reason: `No send today (daysRemaining=${days}, not a milestone, outside 30-day window)`,
+      reason: `No send today (daysRemaining=${days}, not a milestone, outside 300-day window)`,
       todayISO,
       daysRemaining: days,
     })
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
   const bodyMessage =
     kind === 'milestone'
       ? MILESTONES[days]
-      : `${countText}, ${BRIDE_NAME} 💍 Every day brings us closer to forever.`
+      : `${countText}, ${BRIDE_NAME} 💍 Every Single day brings us more closer to forever.`
 
   const fillPct = ((TOTAL_DAYS_AT_START - days) / TOTAL_DAYS_AT_START) * 100
 

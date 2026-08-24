@@ -52,8 +52,8 @@ export function weddingCountdownEmail({
             <tr>
               <td style="background: linear-gradient(135deg,#f6dbe4,#f0c987); padding: 28px 32px; text-align:center;">
                 <p style="margin:0; font-size: 12px; font-weight: 700; color:#7a4a2b; letter-spacing: 0.15em; text-transform: uppercase;">Countdown to Forever</p>
-                <p style="margin:6px 0 0 0; font-size: 22px; font-weight: 700; color:#5a3921;">${groomName} &amp; ${brideName}</p>
-                <p style="margin:4px 0 0 0; font-size: 13px; color:#7a4a2b;">August 28</p>
+                <p style="margin:6px 0 0 0; font-size: 22px; font-weight: 700; color:#5a3921;">${brideName} &amp; ${groomName}</p>
+                <p style="margin:4px 0 0 0; font-size: 13px; color:#7a4a2b;">April 25</p>
               </td>
             </tr>
 
@@ -127,7 +127,7 @@ function heartProgressHTML(fillPct: number): string {
       <!-- Percentage Text -->
       <tr>
         <td style="padding-top: 6px; font-size: 11px; color: #a0785f; font-weight: bold;">
-          ${pct}% Complete
+          ${pct}% Wait is Over
         </td>
       </tr>
     </table>
