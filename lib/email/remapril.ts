@@ -37,7 +37,7 @@ export function weddingCountdownEmail({
               </tr>`
     : ''
 
-  const heart = heartProgressSVG(fillPct)
+  const heart = heartProgressHTML(fillPct)
 
   return `
 <!DOCTYPE html>
@@ -53,7 +53,7 @@ export function weddingCountdownEmail({
               <td style="background: linear-gradient(135deg,#f6dbe4,#f0c987); padding: 28px 32px; text-align:center;">
                 <p style="margin:0; font-size: 12px; font-weight: 700; color:#7a4a2b; letter-spacing: 0.15em; text-transform: uppercase;">Countdown to Forever</p>
                 <p style="margin:6px 0 0 0; font-size: 22px; font-weight: 700; color:#5a3921;">${groomName} &amp; ${brideName}</p>
-                <p style="margin:4px 0 0 0; font-size: 13px; color:#7a4a2b;">April 25</p>
+                <p style="margin:4px 0 0 0; font-size: 13px; color:#7a4a2b;">August 28</p>
               </td>
             </tr>
 
@@ -100,25 +100,36 @@ ${festiveBlock}
 `
 }
 
-function heartProgressSVG(fillPct: number): string {
-  const pct = Math.max(0, Math.min(100, fillPct))
-  const clipY = 100 - pct
+function heartProgressHTML(fillPct: number): string {
+  const pct = Math.max(0, Math.min(100, Math.round(fillPct)))
 
   return `
-<svg width="140" height="140" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:0 auto;">
-  <defs>
-    <clipPath id="heartClip">
-      <path d="M50 88 C20 65 4 45 4 27 C4 12 15 3 28 3 C38 3 46 9 50 18 C54 9 62 3 72 3 C85 3 96 12 96 27 C96 45 80 65 50 88 Z" />
-    </clipPath>
-    <linearGradient id="heartFill" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#d4a373"/>
-      <stop offset="100%" stop-color="#e8a0bf"/>
-    </linearGradient>
-  </defs>
-  <path d="M50 88 C20 65 4 45 4 27 C4 12 15 3 28 3 C38 3 46 9 50 18 C54 9 62 3 72 3 C85 3 96 12 96 27 C96 45 80 65 50 88 Z"
-        fill="#fdf3f6" stroke="#d88fae" stroke-width="2"/>
-  <g clip-path="url(#heartClip)">
-    <rect x="0" y="${clipY}" width="100" height="${pct}" fill="url(#heartFill)"/>
-  </g>
-</svg>`.trim()
+    <table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin: 0 auto; text-align: center;">
+      <!-- Heart Icon -->
+      <tr>
+        <td style="font-size: 38px; line-height: 1; padding-bottom: 8px;">
+          ❤️
+        </td>
+      </tr>
+      <!-- Progress Bar Track -->
+      <tr>
+        <td>
+          <table role="presentation" width="200" cellpadding="0" cellspacing="0" style="background-color: #fdf3f6; border: 1px solid #d88fae; border-radius: 10px; height: 14px; overflow: hidden; margin: 0 auto;">
+            <tr>
+              <!-- Progress Bar Fill -->
+              <td width="${pct}%" style="background-color: #e8a0bf; height: 14px; border-radius: 8px;"></td>
+              <!-- Remaining Space -->
+              <td width="${100 - pct}%"></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <!-- Percentage Text -->
+      <tr>
+        <td style="padding-top: 6px; font-size: 11px; color: #a0785f; font-weight: bold;">
+          ${pct}% Complete
+        </td>
+      </tr>
+    </table>
+  `.trim()
 }
