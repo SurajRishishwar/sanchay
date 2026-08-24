@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 // CONFIG — edit these
 // ─────────────────────────────────────────────────────────────
 
-const WEDDING_DATE = '2027-04-25' // YYYY-MM-DD, interpreted in TIMEZONE
+const WEDDING_DATE = '2027-08-28' // YYYY-MM-DD, interpreted in TIMEZONE
 const TIMEZONE = 'Asia/Kolkata'
 
 const BRIDE_NAME = "Bride"
@@ -17,7 +17,7 @@ const GROOM_NAME = "Groom"
 
 // Fix once, on the day this system first goes live. Used so the heart-fill
 // % is stable for the whole run rather than recalculated every send.
-const TOTAL_DAYS_AT_START = 180 // = WEDDING_DATE - go-live date, set once, never change
+const TOTAL_DAYS_AT_START = 6 // = WEDDING_DATE - go-live date, set once, never change
 
 const FESTIVE_DAYS: Record<string, string> = {
   '2026-03-04': 'Wishing you a joyful Holi, {name} 🎨 — and only {count} to go until forever.',
