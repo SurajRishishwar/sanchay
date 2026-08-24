@@ -17,7 +17,7 @@ const GROOM_NAME = "Suraj"
 
 // Fix once, on the day this system first goes live. Used so the heart-fill
 // % is stable for the whole run rather than recalculated every send.
-const TOTAL_DAYS_AT_START = 310 // = WEDDING_DATE - go-live date, set once, never change
+const TOTAL_DAYS_AT_START = 276 // = WEDDING_DATE - go-live date, set once, never change
 
 const FESTIVE_DAYS: Record<string, string> = {
   '2026-08-25': 'Wishing you a joyful Holi, {name} 🎨 — and only {count} to go until forever.',

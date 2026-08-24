@@ -86,7 +86,7 @@ ${festiveBlock}
             <tr>
               <td style="padding: 20px 32px; background-color:#fdf3f6; border-top: 1px solid #f1ddd0; text-align:center;">
                 <p style="margin:0; font-size: 13px; font-style: italic; color:#a0785f;">
-                  With all my love, ${groomName}
+                  Loving you more with every passing day, ${groomName} ❤️
                 </p>
               </td>
             </tr>
