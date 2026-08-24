@@ -127,7 +127,7 @@ function heartProgressHTML(fillPct: number): string {
       <!-- Percentage Text -->
       <tr>
         <td style="padding-top: 6px; font-size: 11px; color: #a0785f; font-weight: bold;">
-          ${pct}% Wait is Over
+          ${pct}% of the way there
         </td>
       </tr>
     </table>

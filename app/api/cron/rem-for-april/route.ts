@@ -17,7 +17,7 @@ const GROOM_NAME = "Suraj"
 
 // Fix once, on the day this system first goes live. Used so the heart-fill
 // % is stable for the whole run rather than recalculated every send.
-const TOTAL_DAYS_AT_START = 300 // = WEDDING_DATE - go-live date, set once, never change
+const TOTAL_DAYS_AT_START = 310 // = WEDDING_DATE - go-live date, set once, never change
 
 const FESTIVE_DAYS: Record<string, string> = {
   '2026-08-25': 'Wishing you a joyful Holi, {name} 🎨 — and only {count} to go until forever.',
@@ -40,10 +40,6 @@ const MILESTONES: Record<number, string> = {
 // DATE / COUNTDOWN HELPERS
 // ─────────────────────────────────────────────────────────────
 
-// NOTE: the old Sanchay route used new Date().toISOString().split('T')[0],
-// which is UTC and drifts the "day" boundary for IST users. Using
-// Intl.DateTimeFormat with an explicit timeZone instead — this is the
-// timezone fix flagged as an open item (§8.4) in the spec.
 function todayInTZ(): string {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: TIMEZONE,
@@ -59,23 +55,49 @@ function daysBetween(fromISO: string, toISO: string): number {
   return Math.round((to.getTime() - from.getTime()) / 86400000)
 }
 
-function adaptiveCountText(days: number): string {
-  if (days < 0) return 'already married 💍'
-  if (days > 90) {
-    const months = Math.floor(days / 30)
-    const rem = days % 30
-    return `${months} month${months !== 1 ? 's' : ''}, ${rem} day${rem !== 1 ? 's' : ''} to go`
+function getExactCalendarDifference(fromISO: string, toISO: string): { months: number; days: number } {
+  const from = new Date(fromISO + 'T00:00:00Z')
+  const to = new Date(toISO + 'T00:00:00Z')
+
+  let months = (to.getUTCFullYear() - from.getUTCFullYear()) * 12 + (to.getUTCMonth() - from.getUTCMonth())
+
+  // Create an anchor date shifted by calculated months
+  const anchor = new Date(fromISO + 'T00:00:00Z')
+  anchor.setUTCMonth(anchor.getUTCMonth() + months)
+
+  // Adjust if adding months overshot the target date
+  if (anchor > to) {
+    months--
+    anchor.setUTCMonth(anchor.getUTCMonth() - 1)
   }
-  if (days >= 30) {
-    const weeks = Math.floor(days / 7)
-    const rem = days % 7
-    return `${weeks} week${weeks !== 1 ? 's' : ''}, ${rem} day${rem !== 1 ? 's' : ''} to go`
-  }
-  return `${days} day${days !== 1 ? 's' : ''} to go`
+
+  const remDays = Math.round((to.getTime() - anchor.getTime()) / 86400000)
+  return { months, days: remDays }
 }
 
-function adaptiveSubjectText(days: number): string {
-  return adaptiveCountText(days).replace(/ to go$/, '')
+function adaptiveCountText(daysTotal: number, todayISO: string, weddingISO: string): string {
+  if (daysTotal < 0) return 'already married 💍'
+  if (daysTotal === 0) return '0 days to go'
+
+  const { months, days } = getExactCalendarDifference(todayISO, weddingISO)
+
+  if (months > 0) {
+    const monthStr = `${months} month${months !== 1 ? 's' : ''}`
+    const dayStr = days > 0 ? `, ${days} day${days !== 1 ? 's' : ''}` : ''
+    return `${monthStr}${dayStr} to go`
+  }
+
+  if (daysTotal >= 30) {
+    const weeks = Math.floor(daysTotal / 7)
+    const rem = daysTotal % 7
+    return `${weeks} week${weeks !== 1 ? 's' : ''}, ${rem} day${rem !== 1 ? 's' : ''} to go`
+  }
+
+  return `${daysTotal} day${daysTotal !== 1 ? 's' : ''} to go`
+}
+
+function adaptiveSubjectText(daysTotal: number, todayISO: string, weddingISO: string): string {
+  return adaptiveCountText(daysTotal, todayISO, weddingISO).replace(/ to go$/, '')
 }
 
 function toTitleCase(s: string): string {
@@ -101,14 +123,6 @@ function decideSend(days: number, todayISO: string) {
 // ─────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
-  // Unlike the Sanchay route, this check is NOT commented out — this route
-  // sends a personal email, not a bulk job, but it's still hitting your
-  // Gmail sender on a public URL. Keep it enabled.
-//   const authHeader = request.headers.get('authorization')
-//   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-//     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-//   }
-
   const todayISO = todayInTZ()
   const days = daysBetween(todayISO, WEDDING_DATE)
   const { shouldSend, kind, festiveMsg } = decideSend(days, todayISO)
@@ -122,13 +136,13 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  const countText = adaptiveCountText(days)
+  const countText = adaptiveCountText(days, todayISO, WEDDING_DATE)
   const bodyMessage =
     kind === 'milestone'
       ? MILESTONES[days]
-      : `${countText}, ${BRIDE_NAME} 💍 Every Single day brings us more closer to forever.`
+      : `Every single day brings us closer to forever, ${BRIDE_NAME}.`
 
-  const fillPct = ((TOTAL_DAYS_AT_START - days) / TOTAL_DAYS_AT_START) * 100
+  const fillPct = Math.min(100, Math.max(0, ((TOTAL_DAYS_AT_START - days) / TOTAL_DAYS_AT_START) * 100))
 
   const html = weddingCountdownEmail({
     brideName: BRIDE_NAME,
@@ -141,7 +155,8 @@ export async function GET(request: NextRequest) {
     fillPct,
   })
 
-  const subject = `${toTitleCase(adaptiveSubjectText(days))} to Go 💍`
+  const subjectText = adaptiveSubjectText(days, todayISO, WEDDING_DATE)
+  const subject = `${toTitleCase(subjectText)} to Go 💍`
 
   const mailer = createMailer()
 
