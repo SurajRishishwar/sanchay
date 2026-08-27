@@ -49,12 +49,25 @@ export function weddingCountdownEmail({
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 480px; background-color:#fffdfb; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #f1ddd0;">
 
             <!-- Header -->
+            // <tr>
+            //   <td style="background: linear-gradient(135deg,#f6dbe4,#f0c987); padding: 28px 32px; text-align:center;">
+            //     <p style="margin:0; font-size: 12px; font-weight: 700; color:#7a4a2b; letter-spacing: 0.15em; text-transform: uppercase;">Countdown to Forever</p>
+            //     <p style="margin:6px 0 0 0; font-size: 22px; font-weight: 700; color:#5a3921;">${brideName} &amp; ${groomName}</p>
+            //     <p style="margin:4px 0 0 0; font-size: 13px; color:#7a4a2b;">April 25</p>
+            //   </td>
+            // </tr>
             <tr>
-              <td style="background: linear-gradient(135deg,#f6dbe4,#f0c987); padding: 28px 32px; text-align:center;">
-                <p style="margin:0; font-size: 12px; font-weight: 700; color:#7a4a2b; letter-spacing: 0.15em; text-transform: uppercase;">Countdown to Forever</p>
-                <p style="margin:6px 0 0 0; font-size: 22px; font-weight: 700; color:#5a3921;">${brideName} &amp; ${groomName}</p>
-                <p style="margin:4px 0 0 0; font-size: 13px; color:#7a4a2b;">April 25</p>
-              </td>
+            <td style="background: linear-gradient(135deg,#f6dbe4,#f0c987); padding: 28px 32px; text-align:center;">
+                <p style="margin:0; font-size: 12px; font-weight: 800; color:#4a2810 !important; letter-spacing: 0.15em; text-transform: uppercase;">
+                Countdown to Forever
+                </p>
+                <p style="margin:6px 0 0 0; font-size: 22px; font-weight: 700; color:#2c1405 !important;">
+                ${groomName} &amp; ${brideName}
+                </p>
+                <p style="margin:6px 0 0 0; font-size: 14px; font-weight: 700; color:#3a1d08 !important;">
+                April 25, 2027
+                </p>
+            </td>
             </tr>
 
             <!-- Heart progress bar -->
