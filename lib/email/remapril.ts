@@ -56,7 +56,7 @@ export function weddingCountdownEmail({
                 Countdown to Forever
                 </p>
                 <p style="margin:6px 0 0 0; font-size: 22px; font-weight: 700; color:#2c1405 !important;">
-                ${groomName} &amp; ${brideName}
+                ${brideName} &amp; ${groomName}
                 </p>
                 <p style="margin:6px 0 0 0; font-size: 14px; font-weight: 700; color:#3a1d08 !important;">
                 April 25, 2027

@@ -24,7 +24,7 @@ const FESTIVE_DAYS: Record<string, string> = {
   '2026-11-08': 'Happy Birthday, {name}! 🎂 & Wishing you a Very Happy Diwali, 🪔 — and only {count} until forever.',
   '2027-01-01': 'Happy New Year, {name} 🎉 — and only {count}  until forever.',
   '2026-09-14': 'Happy Ganesh Chaturthi, {name}! God Ganesha will always with you — and only {count} until forever.',
-  '2026-08-27': 'Merry Christmas, {name} 🎉🎉 — and only {count} until forever.',
+  '2026-12-25': 'Merry Christmas, {name} 🎉🎉 — and only {count} until forever.',
 }
 
 const MILESTONES: Record<number, string> = {
