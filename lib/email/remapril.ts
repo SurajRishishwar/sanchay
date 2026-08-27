@@ -49,6 +49,8 @@ export function weddingCountdownEmail({
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 480px; background-color:#fffdfb; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #f1ddd0;">
 
             <!-- Header -->
+
+            <tr>
             <td style="background: linear-gradient(135deg,#f6dbe4,#f0c987); padding: 28px 32px; text-align:center;">
                 <p style="margin:0; font-size: 12px; font-weight: 800; color:#4a2810 !important; letter-spacing: 0.15em; text-transform: uppercase;">
                 Countdown to Forever
