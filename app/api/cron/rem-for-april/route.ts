@@ -20,20 +20,23 @@ const GROOM_NAME = "Suraj"
 const TOTAL_DAYS_AT_START = 276 // = WEDDING_DATE - go-live date, set once, never change
 
 const FESTIVE_DAYS: Record<string, string> = {
-  '2026-08-25': 'Wishing you a joyful Holi, {name} 🎨 — and only {count} to go until forever.',
-  '2026-08-26': 'Wishing you a Very Happy Diwali, {name} 🪔 — and only {count} to go until forever.',
-  '2026-08-27': 'Happy New Year, {name} 🎉 — and only {count} to go until forever.',
-  '2026-08-28': 'Happy Birthday, {name}! 🎂 — and only {count} to go until forever.',
+  '2027-03-22': 'Wishing you a joyful Holi, {name} 🎨 — and only {count} until forever.',
+  '2026-11-08': 'Happy Birthday, {name}! 🎂 & Wishing you a Very Happy Diwali, 🪔 — and only {count} until forever.',
+  '2027-01-01': 'Happy New Year, {name} 🎉 — and only {count}  until forever.',
+  '2026-09-14': 'Happy Ganesh Chaturthi, {name}! God Ganesha will always with you — and only {count} until forever.',
+  '2026-08-27': 'Merry Christmas, {name} 🎉🎉 — and only {count} until forever.',
 }
 
 const MILESTONES: Record<number, string> = {
-  243: `30 days to go, ${BRIDE_NAME} 💍 — a month from now, you'll be my wife. I can't stop smiling.`,
-  242: `3 weeks left.${BRIDE_NAME} Every day feels longer waiting for you, and shorter thinking about forever with you.`,
-  241: `2 weeks, ${BRIDE_NAME}. I keep thinking about all the little moments that brought us here.`,
-  240: `Just 1 week away! ${BRIDE_NAME} I can barely sit still. Almost time, my love.`,
-  239: `3 days. ${BRIDE_NAME} I keep looking at the calendar like it's going to change. It's really happening.`,
-  238: `Tomorrow, ${BRIDE_NAME} you become my wife. Tonight, I just want you to know how loved you are.`,
-  237: `Today's the day, ${BRIDE_NAME} 💍 I'll see you at the altar. Forever starts now.`,
+  100: `100 days to go, ${BRIDE_NAME} 💍 — just 100 day's from now, I catch myself smiling every time I realize how close we are.`, 
+  50: `50 days to go, ${BRIDE_NAME} 💍 — just more than a month from now, you'll be my life. I can't stop smiling.`,  
+  30: `30 days to go, ${BRIDE_NAME} 💍 — a month from now, I get to call you my wife. My heart is so full.`,
+  21: `3 weeks left, ${BRIDE_NAME} Every day feels longer waiting for you, and shorter thinking about forever with you.`,
+  14: `2 weeks left, ${BRIDE_NAME} I keep thinking about all the little moments that brought us here.`,
+  7: `Just 1 week away! ${BRIDE_NAME} I can barely sit still. Almost time, my love.`,
+  5: `5 days. ${BRIDE_NAME} I keep looking at the calendar like it's going to change. It's really happening.`,
+  1: `Tomorrow, ${BRIDE_NAME} you become my wife. Tonight, I just want you to know how loved you are.`,
+  0: `Today's the day, ${BRIDE_NAME} 💍 I'll see you at your place. Forever starts now.`,
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -162,7 +165,7 @@ export async function GET(request: NextRequest) {
 
   try {
     await mailer.sendMail({
-      from: `${GROOM_NAME} <${process.env.GMAIL_USER}>`,
+      from: `"${GROOM_NAME}'s Love" <${process.env.GMAIL_USER}>`,
       to: BRIDE_EMAIL,
       subject,
       html,
