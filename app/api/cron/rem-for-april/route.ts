@@ -124,10 +124,28 @@ function decideSend(days: number, todayISO: string) {
   const milestone = isMilestone(days)
   const festiveMsg = FESTIVE_DAYS[todayISO] ?? null
 
-  if (milestone) return { shouldSend: true, kind: 'milestone' as const, festiveMsg }
-  if (days < 0) return { shouldSend: false, kind: 'none' as const, festiveMsg: null }
-  if (days <= 300) return { shouldSend: true, kind: 'generic' as const, festiveMsg }
-  return { shouldSend: false, kind: 'none' as const, festiveMsg: null }
+  const dayOfMonth = parseInt(todayISO.split('-')[2], 10)
+  const isMultipleOfThree = dayOfMonth % 3 === 0
+
+  // 1. Always send on Milestones & Holidays
+  if (milestone) return { shouldSend: true, kind: 'milestone' as const, festiveMsg, reason: null }
+  if (festiveMsg) return { shouldSend: true, kind: 'generic' as const, festiveMsg, reason: null }
+  if (days < 0) return { shouldSend: false, kind: 'none' as const, festiveMsg: null, reason: 'Already married' }
+
+  // 2. Daily emails in the final 30 days before the wedding
+  if (days <= 30) return { shouldSend: true, kind: 'generic' as const, festiveMsg, reason: null }
+
+  // 3. Every 3rd day of the month for general long-term countdown
+  if (isMultipleOfThree && days <= 300) {
+    return { shouldSend: true, kind: 'generic' as const, festiveMsg, reason: null }
+  }
+
+  return { 
+    shouldSend: false, 
+    kind: 'none' as const, 
+    festiveMsg: null, 
+    reason: `Skipped: Day of month (${dayOfMonth}) is not a multiple of 3` 
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
