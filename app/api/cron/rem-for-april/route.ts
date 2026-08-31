@@ -12,7 +12,8 @@ const WEDDING_DATE = '2027-04-25' // YYYY-MM-DD, interpreted in TIMEZONE
 const TIMEZONE = 'Asia/Kolkata'
 
 const BRIDE_NAME = "Vanshika"
-const BRIDE_EMAIL = 'vs8278013@gmail.com'
+// const BRIDE_EMAIL = 'vs8278013@gmail.com'
+const BRIDE_EMAIL = 'flubwastebank@gmail.com'
 const GROOM_NAME = "Suraj"
 
 // Fix once, on the day this system first goes live. Used so the heart-fill
@@ -59,22 +60,30 @@ function daysBetween(fromISO: string, toISO: string): number {
 }
 
 function getExactCalendarDifference(fromISO: string, toISO: string): { months: number; days: number } {
-  const from = new Date(fromISO + 'T00:00:00Z')
-  const to = new Date(toISO + 'T00:00:00Z')
-
-  let months = (to.getUTCFullYear() - from.getUTCFullYear()) * 12 + (to.getUTCMonth() - from.getUTCMonth())
-
-  // Create an anchor date shifted by calculated months
-  const anchor = new Date(fromISO + 'T00:00:00Z')
-  anchor.setUTCMonth(anchor.getUTCMonth() + months)
-
-  // Adjust if adding months overshot the target date
-  if (anchor > to) {
-    months--
-    anchor.setUTCMonth(anchor.getUTCMonth() - 1)
+  // Days in each month for the timeline from August 2026 to April 2027
+  // [Aug=31, Sep=30, Oct=31, Nov=30, Dec=31, Jan=31, Feb=28, Mar=31, Apr=30]
+  const MONTH_LENGTHS: Record<number, number> = {
+    7: 31, 8: 30, 9: 31, 10: 30, 11: 31, 0: 31, 1: 28, 2: 31, 3: 30
   }
 
-  const remDays = Math.round((to.getTime() - anchor.getTime()) / 86400000)
+  let remDays = daysBetween(fromISO, toISO)
+  if (remDays <= 0) return { months: 0, days: 0 }
+
+  const from = new Date(fromISO + 'T00:00:00Z')
+  let currentMonthIndex = from.getUTCMonth()
+  let months = 0
+
+  while (remDays > 0) {
+    const daysInMonth = MONTH_LENGTHS[currentMonthIndex] ?? 30
+    if (remDays >= daysInMonth) {
+      remDays -= daysInMonth
+      months++
+      currentMonthIndex = (currentMonthIndex + 1) % 12
+    } else {
+      break
+    }
+  }
+
   return { months, days: remDays }
 }
 
