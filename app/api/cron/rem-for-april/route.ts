@@ -12,8 +12,8 @@ const WEDDING_DATE = '2027-04-25' // YYYY-MM-DD, interpreted in TIMEZONE
 const TIMEZONE = 'Asia/Kolkata'
 
 const BRIDE_NAME = "Vanshika"
-// const BRIDE_EMAIL = 'vs8278013@gmail.com'
-const BRIDE_EMAIL = 'flubwastebank@gmail.com'
+const BRIDE_EMAIL = 'vs8278013@gmail.com'
+// const BRIDE_EMAIL = 'flubwastebank@gmail.com'
 const GROOM_NAME = "Suraj"
 
 // Fix once, on the day this system first goes live. Used so the heart-fill
