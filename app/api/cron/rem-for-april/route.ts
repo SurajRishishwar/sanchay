@@ -155,12 +155,12 @@ function decideSend(days: number, todayISO: string) {
 export async function GET(request: NextRequest) {
   const todayISO = todayInTZ()
   const days = daysBetween(todayISO, WEDDING_DATE)
-  const { shouldSend, kind, festiveMsg } = decideSend(days, todayISO)
+  const { shouldSend, kind, festiveMsg, reason } = decideSend(days, todayISO)
 
   if (!shouldSend) {
     return NextResponse.json({
       sent: false,
-      reason: `No send today (daysRemaining=${days}, not a milestone, outside 300-day window)`,
+      reason: reason ?? `No send today (daysRemaining=${days}, not a milestone, outside 300-day window)`,
       todayISO,
       daysRemaining: days,
     })
